@@ -29,18 +29,17 @@ def class_analytics(
     db: Session = Depends(get_db)
 ):
 
-    # all students
+    
     students = db.query(Student).filter(Student.role == "student").all()
     marks = db.query(Marks).all()
 
     if len(students) == 0 or len(marks) == 0:
         return {"message": "Not enough data to analyze"}
 
-    # ---------- class average ----------
+    
     total_marks = sum(m.score for m in marks)
     class_average = round(total_marks / len(marks), 2)
 
-    # ---------- topper ----------
     student_scores = defaultdict(list)
 
     for m in marks:
@@ -54,14 +53,12 @@ def class_analytics(
     topper_student = db.query(Student).filter(Student.email == topper_email).first()
     topper_name = topper_student.name if topper_student else "Unknown"
 
-    # ---------- weak students ----------
     weak_students = 0
     for email, scores in student_scores.items():
         avg = sum(scores) / len(scores)
         if avg < 40:
             weak_students += 1
 
-    # ---------- subject wise average ----------
     subject_map = defaultdict(list)
 
     for m in marks:
